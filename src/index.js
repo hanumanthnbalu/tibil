@@ -9,12 +9,54 @@ app.use(bodyParser.json({ limit: "1000mb", extended: true }));
 const data = require('./data.json');
 const listIds = []
 app.get('/problem-2', (req, res) => {
-    data.domains.forEach(({ list, children }) => {
-        list ? extractListId(list) :
-            children.forEach(({ list, children }) => children.forEach(({ list, children }) => list ? extractListId(list) : children.forEach(({ list, children }) => extractListId(list))))
+    // data.domains.forEach(({ list, children }) => {
+    //     list ? extractListId(list) : getChildren(children)
+    //     // children.forEach(({ list, children }) => children.forEach(({ list, children }) => list ? extractListId(list) : children.forEach(({ list, children }) => extractListId(list))))
+    // })
+    // const result = flatten(data.domains);
+    var out = flattenData(data.domains);
+    out.forEach(({ list, children }) => {
+        list ? extractListId(list) : flattenChildren(children)
     })
     res.send(listIds);
 });
+
+function flattenChildren(childrens) {
+    childrens.forEach(({ list, children }) => {
+        list ? extractListId(list) : flattenChildren(children)
+        console.log(children)
+    })
+}
+
+function flattenData(value) {
+    var a = [];
+    for (var i = 0; i < value.length; i++) {
+        var o = value[i];
+        if (o.children) {
+            var c = flattenData(o.children);
+            if (c) a = a.concat(c);
+        }
+        a.push(o)
+    }
+    return a;
+}
+
+function getChildren(child) {
+    const { list, children } = child;
+    list ? extractListId(list) :
+        child.forEach(({ list, children }) =>
+            children ? getChildren(children) : extractListId(list)
+        )
+}
+
+function flatten(into, node) {
+    if (node == null) return into;
+    if (Array.isArray(node)) return node.reduce(flatten, into);
+    into.push(node);
+    return flatten(into, node.children);
+}
+
+
 function extractListId(list) {
     list.forEach(({ listId }) => {
         listIds.push(listId)

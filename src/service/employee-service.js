@@ -17,7 +17,7 @@ const EmployeeService = {
 
             const salt = await bcrypt.genSalt(10);
             employeeDetails.password = await bcrypt.hash(password, salt);
-            employeeDetails.employeeId = shortid.generate();
+            // employeeDetails.employeeId =  // shortid.generate();
             const createdEmployee = await employeeDAO.create(employeeDetails);
 
             if (!createdEmployee) return Promise.reject(res.error(HTML_STATUS_CODE.INTERNAL_ERROR, "Something went wrong while registering employing"));
@@ -107,6 +107,7 @@ const EmployeeService = {
         try {
             if (!companyId || !data) return Promise.reject(res.error(HTML_STATUS_CODE.INVALID_DATA, "Invalid Data"));
             const employees = await employeeDAO.search(companyId, data);
+            const googleRes = await employeeDAO.searchInGoogle(companyId, data);
             if (!employees) return Promise.reject(res.error(HTML_STATUS_CODE.NOT_FOUND, "No Employee found yet!."));
             return employees;
         } catch (error) {

@@ -46,11 +46,11 @@ exports.delete = (condition) => {
 };
 
 exports.search = (company, condition) => {
-    const { email, mobile, name, employeeId } = condition;
+    // const { email, mobile, name, employeeId } = condition.search;
     return EmployeeModel.find({
         $and: [{
             company,
-            $or: [{ email }, { mobile }, { name }, { employeeId }]
+            $or: [{ email: condition.search }, { mobile: condition.search }, { name: condition.search }, { employeeId: condition.search }]
         }]
     }).populate('company reportingManager subordinates');
 };
